@@ -10,10 +10,13 @@
   "author": "billowycloud",
   "license": "ISC",
   "dependencies": {
+    "@ant-design/icons": "^4.3.0",
+    "antd": "^4.8.5",
     "next": "^9.5.5",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "styled-components": "^5.2.1"
   },
   "devDependencies": {
     "eslint": "^7.14.0",
