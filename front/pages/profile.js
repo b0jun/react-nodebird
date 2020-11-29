@@ -1,29 +1,21 @@
 import React from 'react';
-import AppLayout from '../components/AppLayout';
 import Head from 'next/head';
+import { useSelector } from 'react-redux';
+
+import AppLayout from '../components/AppLayout';
 import NicknameEditForm from '../components/NicknameEditForm';
 import FollowList from '../components/FollowList';
 
 const profile = () => {
-  const followerList = [
-    { nickname: '준' },
-    { nickname: '바보' },
-    { nickname: '노드버드오피셜' },
-  ];
-  const followingList = [
-    { nickname: '준' },
-    { nickname: '바보' },
-    { nickname: '노드버드오피셜' },
-  ];
-
+  const { me } = useSelector((state) => state.user);
   return (
     <AppLayout>
       <Head>
         <title>내 프로필 | NodeBird</title>
       </Head>
       <NicknameEditForm />
-      <FollowList header="팔로잉 목록" data={followingList} />
-      <FollowList header="팔로워 목록" data={followerList} />
+      <FollowList header="팔로잉" data={me.followings} />
+      <FollowList header="팔로워" data={me.followers} />
     </AppLayout>
   );
 };
