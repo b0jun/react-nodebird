@@ -9,10 +9,11 @@ import {
   MessageOutlined,
   EllipsisOutlined,
 } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
+import { REMOVE_POST_REQUEST } from '../reducers/post';
 
 const CardWrapper = styled.div`
   margin-bottom: 20px;
@@ -21,6 +22,8 @@ const CardWrapper = styled.div`
 const PostCard = ({ post }) => {
   // state.user.me && state.user.me.id
   const id = useSelector((state) => state.user.me?.id);
+  const { removePostLoading } = useSelector((state) => state.post);
+  const dispatch = useDispatch();
   const [commentFormOpened, setCommentFormOpened] = useState(false);
   const [liked, setLiked] = useState(false);
   const onToggleLike = useCallback(() => {
@@ -29,6 +32,13 @@ const PostCard = ({ post }) => {
 
   const onToggleComment = useCallback(() => {
     setCommentFormOpened((prev) => !prev);
+  }, []);
+
+  const onRemovePost = useCallback(() => {
+    dispatch({
+      type: REMOVE_POST_REQUEST,
+      data: post.id,
+    });
   }, []);
 
   return (
@@ -44,13 +54,19 @@ const PostCard = ({ post }) => {
           ),
           <MessageOutlined key="message" onClick={onToggleComment} />,
           <Popover
-            key="ellipsis"
+            key="more"
             content={
               <Button.Group>
                 {id && post.User.id === id ? (
                   <>
                     <Button>수정</Button>
-                    <Button type="danger">삭제</Button>
+                    <Button
+                      type="danger"
+                      loading={removePostLoading}
+                      onClick={onRemovePost}
+                    >
+                      삭제
+                    </Button>
                   </>
                 ) : (
                   <Button>신고</Button>
@@ -91,7 +107,7 @@ const PostCard = ({ post }) => {
   );
 };
 
-//object는 shape로 풀어 쓸 수 있다.
+// object는 shape로 풀어 쓸 수 있다.
 PostCard.propTypes = {
   post: PropTypes.shape({
     id: PropTypes.number,
