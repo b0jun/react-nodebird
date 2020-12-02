@@ -23,8 +23,8 @@ passportConfig();
 // Body
 app.use(
   cors({
-    origin: true,
-    credentials: true,
+    origin: 'http://localhost:4000', // true 도 가능
+    credentials: true, // 쿠키 전달 시
   })
 );
 app.use(express.json());

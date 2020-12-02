@@ -15,7 +15,7 @@ router.get('/', async (req, res, next) => {
         where: { id: req.user.id },
         atttributes: { exclude: ['password'] },
         include: [
-          { model: Post, as: 'Posts', attributes: ['id'] },
+          { model: Post, as: 'Posts', attributes: ['id'] }, // id만 가져오는건 길이만 알면 되므로
           { model: User, as: 'Followings', attributes: ['id'] },
           { model: User, as: 'Followers', attributes: ['id'] },
         ],
