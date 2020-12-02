@@ -7,6 +7,29 @@ const db = require('../models');
 
 const router = express.Router();
 
+// GET /user [로그인 확인]
+router.get('/', async (req, res, next) => {
+  try {
+    if (req.user) {
+      const fullUserWithoutPassword = await User.findOne({
+        where: { id: req.user.id },
+        atttributes: { exclude: ['password'] },
+        include: [
+          { model: Post, as: 'Posts', attributes: ['id'] },
+          { model: User, as: 'Followings', attributes: ['id'] },
+          { model: User, as: 'Followers', attributes: ['id'] },
+        ],
+      });
+      res.status(200).json(fullUserWithoutPassword);
+    } else {
+      res.status(200).json(null); // 로그인 아닐 시 null
+    }
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
+
 // Post /user/login [로그인]
 router.post('/login', isNotLoggedIn, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -29,9 +52,9 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
         where: { id: user.id },
         atttributes: { exclude: ['password'] },
         include: [
-          { model: Post, as: 'Posts' }, // hasMany라서 model: Post가 복수형이 되어 me.Posts가 됨
-          { model: User, as: 'Followings' }, // as 적었던건 반드시 as 명시
-          { model: User, as: 'Followers' },
+          { model: Post, as: 'Posts', attributes: ['id'] }, // hasMany라서 model: Post가 복수형이 되어 me.Posts가 됨
+          { model: User, as: 'Followings', attributes: ['id'] }, // as 적었던건 반드시 as 명시
+          { model: User, as: 'Followers', attributes: ['id'] },
         ],
       });
       return res.status(200).json(fullUserWithoutPassword);
