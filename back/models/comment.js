@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
   // belongsTo는 UserId, PostId로 된 컬럼이 자동적으로 생성되는 곳
-  Comment.associatge = (db) => {
+  Comment.associate = (db) => {
     db.Comment.belongsTo(db.User);
     db.Comment.belongsTo(db.Post);
   };

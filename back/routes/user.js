@@ -1,14 +1,46 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const { User } = require('../models');
+const passport = require('passport');
+const { User, Post } = require('../models');
+const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
+const db = require('../models');
 
 const router = express.Router();
 
-// Post /user/login
-router.post('/login', (req, res, next) => {});
+// Post /user/login [로그인]
+router.post('/login', isNotLoggedIn, (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    // err,user,info = done 에서 전달받은 것들
+    if (err) {
+      console.error(err);
+      return next(err);
+    }
+    if (info) {
+      return res.status(401).send(info.reason);
+    }
+    // 패스포트 로그인
+    return req.login(user, async (loginErr) => {
+      if (loginErr) {
+        // 패스포트 로그인 에러 시
+        console.error(loginErr);
+        return next(loginErr);
+      }
+      const fullUserWithoutPassword = await User.findOne({
+        where: { id: user.id },
+        atttributes: { exclude: ['password'] },
+        include: [
+          { model: Post, as: 'Posts' }, // hasMany라서 model: Post가 복수형이 되어 me.Posts가 됨
+          { model: User, as: 'Followings' }, // as 적었던건 반드시 as 명시
+          { model: User, as: 'Followers' },
+        ],
+      });
+      return res.status(200).json(fullUserWithoutPassword);
+    });
+  })(req, res, next); // middleware 확장하는 구조 (next 사용가능)
+});
 
-// Post /user/
-router.post('/', async (req, res, next) => {
+// Post /user [회원가입]
+router.post('/', isNotLoggedIn, async (req, res, next) => {
   try {
     const exUser = await User.findOne({
       where: {
@@ -30,6 +62,13 @@ router.post('/', async (req, res, next) => {
     console.error(e);
     next(e); // status 500 (서버쪽에서 처리하다가 에러난 것 이므로)
   }
+});
+
+// Post /user/logout [로그아웃]
+router.post('/logout', isLoggedIn, (req, res) => {
+  req.logout();
+  req.session.destroy();
+  res.send('ok');
 });
 
 module.exports = router;

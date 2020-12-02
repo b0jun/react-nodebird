@@ -23,8 +23,8 @@ module.exports = (sequelize, DataTypes) => {
       collate: 'utf8_general_ci',
     }
   );
-  User.associatge = (db) => {
-    db.User.hasMany(db.Post);
+  User.associate = (db) => {
+    db.User.hasMany(db.Post, { as: 'Posts' });
     db.User.hasMany(db.Comment);
     db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' }); // through, 조인테이블 명명
     db.User.belongsToMany(db.User, {
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     db.User.belongsToMany(db.User, {
       through: 'Follow',
-      as: 'Followerings',
+      as: 'Followings',
       foreignKey: 'FollowerId',
     });
   };
