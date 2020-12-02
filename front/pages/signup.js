@@ -1,6 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Checkbox, Form, Input } from 'antd';
 import Head from 'next/head';
+import Router from 'next/router';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import useInput from '../hooks/useInput';
@@ -15,8 +16,19 @@ const ConfirmWrapper = styled.div`
 `;
 const signup = () => {
   const dispatch = useDispatch();
-  const { signUpLoading } = useSelector((state) => state.user);
+  const { signUpLoading, signUpDone, signUpError } = useSelector((state) => state.user);
 
+  useEffect(() => {
+    if (signUpDone) {
+      Router.push('/');
+    }
+  }, [signUpDone]);
+
+  useEffect(() => {
+    if (signUpError) {
+      alert(signUpError);
+    }
+  }, []);
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -85,6 +97,7 @@ const signup = () => {
           <br />
           <Input
             name="user-password"
+            type="password"
             value={password}
             required
             onChange={onChangePassword}
@@ -95,6 +108,7 @@ const signup = () => {
           <br />
           <Input
             name="user-password-check"
+            type="password"
             value={passwordCheck}
             required
             onChange={onChangePasswordCheck}
