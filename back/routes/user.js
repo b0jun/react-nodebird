@@ -164,9 +164,9 @@ router.get('/followers', isLoggedIn, async (req, res, next) => {
     }
     const followers = await user.getFollowers();
     res.status(200).json(followers);
-  } catch (error) {
-    console.error(error);
-    next(error);
+  } catch (e) {
+    console.error(e);
+    next(e);
   }
 });
 
@@ -179,9 +179,9 @@ router.get('/followings', isLoggedIn, async (req, res, next) => {
     }
     const followings = await user.getFollowings();
     res.status(200).json(followings);
-  } catch (error) {
-    console.error(error);
-    next(error);
+  } catch (e) {
+    console.error(e);
+    next(e);
   }
 });
 

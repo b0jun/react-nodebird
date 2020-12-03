@@ -13,7 +13,6 @@ import {
 
 const ImagesZoom = ({ images, onClose }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-
   return (
     <Overlay>
       <Global />
@@ -33,7 +32,7 @@ const ImagesZoom = ({ images, onClose }) => {
           >
             {images.map((v) => (
               <ImgWrapper key={v.src}>
-                <img src={v.src} alt={v.src} />
+                <img src={`http://localhost:4000/${v.src}`} alt={v.src} />
               </ImgWrapper>
             ))}
           </Slick>
