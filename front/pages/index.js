@@ -7,8 +7,18 @@ import { LOAD_POSTS_REQUEST } from '../reducers/post';
 import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
 
 const Home = () => {
-  const { hasMorePosts, loadPostsLoading } = useSelector((state) => state.post);
+  const { me } = useSelector((state) => state.user);
+  const { mainPosts, hasMorePosts, loadPostsLoading, retweetError } = useSelector(
+    (state) => state.post
+  );
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (retweetError) {
+      alert(retweetError);
+    }
+  }, [retweetError]);
+
   useEffect(() => {
     dispatch({
       type: LOAD_MY_INFO_REQUEST,
@@ -43,8 +53,6 @@ const Home = () => {
     };
   }, [hasMorePosts, loadPostsLoading]);
 
-  const { me } = useSelector((state) => state.user);
-  const { mainPosts } = useSelector((state) => state.post);
   return (
     <AppLayout>
       {me && <PostForm />}
