@@ -1,7 +1,9 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
-const { User, Post } = require('../models');
+const { Op } = require('sequelize');
+
+const { User, Post, Image, Comment } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const db = require('../models');
 
@@ -9,6 +11,7 @@ const router = express.Router();
 
 // GET /user [로그인 확인]
 router.get('/', async (req, res, next) => {
+  console.log(req.headers);
   try {
     if (req.user) {
       const fullUserWithoutPassword = await User.findOne({
@@ -27,6 +30,37 @@ router.get('/', async (req, res, next) => {
   } catch (e) {
     console.error(e);
     next(e);
+  }
+});
+
+// GET /user/3 [특정 유저 정보 가져오기]
+router.get('/:id', async (req, res, next) => {
+  try {
+    const fullUserWithoutPassword = await User.findOne({
+      where: { id: req.params.id },
+      attributes: {
+        exclude: ['password'],
+      },
+      include: [
+        { model: Post, attributes: ['id'] },
+        { model: User, as: 'Followings', attributes: ['id'] },
+        { model: User, as: 'Followers', attributes: ['id'] },
+      ],
+    });
+    if (fullUserWithoutPassword) {
+      // 시퀄라이즈에서 받은 데이터를 JSON으로 변환
+      const data = fullUserWithoutPassword.toJSON();
+      // 개인정보를 보호하기위해 length만
+      data.Posts = data.Posts.length;
+      data.Followings = data.Followings.length;
+      data.Followers = data.Followers.length;
+      res.status(200).json(data);
+    } else {
+      res.status(404).json('존재하지 않는 사용자입니다.');
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 });
 
@@ -182,6 +216,58 @@ router.get('/followings', isLoggedIn, async (req, res, next) => {
   } catch (e) {
     console.error(e);
     next(e);
+  }
+});
+
+// GET /user/1/posts [특정 유저 포스트 가져오기]
+router.get('/:userId/posts', async (req, res, next) => {
+  try {
+    const user = await User.findOne({ where: { id: req.params.userId } });
+    if (user) {
+      const where = {};
+      if (parseInt(req.query.lastId, 10)) {
+        // 초기 로딩이 아닐 때
+        where.id = { [Op.lt]: parseInt(req.query.lastId, 10) };
+      } // 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1
+      const posts = await user.getPosts({
+        where,
+        limit: 10,
+        order: [
+          ['createdAt', 'DESC'],
+          [Comment, 'createdAt', 'DESC'],
+        ],
+        include: [
+          { model: User, attributes: ['id', 'nickname'] },
+          { model: Image },
+          { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
+          {
+            model: User, // 좋아요 누른 사람
+            as: 'Likers',
+            attributes: ['id'],
+          },
+          {
+            model: Post,
+            as: 'Retweet',
+            include: [
+              {
+                model: User,
+                attributes: ['id', 'nickname'],
+              },
+              {
+                model: Image,
+              },
+            ],
+          },
+        ],
+      });
+      console.log(posts);
+      res.status(200).json(posts);
+    } else {
+      res.status(404).send('존재하지 않는 사용자입니다.');
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 });
 
