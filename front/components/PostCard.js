@@ -9,7 +9,10 @@ import {
   MessageOutlined,
   EllipsisOutlined,
 } from '@ant-design/icons';
+import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
+import moment from 'moment';
+
 import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
@@ -21,8 +24,14 @@ import {
 } from '../reducers/post';
 import FollowButton from './FollowButton';
 
+moment.locale('ko'); // moment 한글화
+
 const CardWrapper = styled.div`
   margin-bottom: 20px;
+`;
+
+const DateSpan = styled.span`
+  float: right;
 `;
 
 const PostCard = ({ post }) => {
@@ -94,7 +103,7 @@ const PostCard = ({ post }) => {
               <Button.Group>
                 {id && post.User.id === id ? (
                   <>
-                    <Button>수정</Button>
+                    {!post.RetweetId && <Button>수정</Button>}
                     <Button
                       type="danger"
                       loading={removePostLoading}
@@ -119,18 +128,34 @@ const PostCard = ({ post }) => {
           <Card
             cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}
           >
+            <DateSpan>{moment(post.createdAt).format('YYYY.MM.DD.')}</DateSpan>
             <Card.Meta
-              avatar={<Avatar>{post.Retweet.User.nickname[0]}</Avatar>}
+              avatar={
+                <Link href={`/user/${post.Retweet.User.id}`}>
+                  <a>
+                    <Avatar>{post.Retweet.User.nickname[0]}</Avatar>
+                  </a>
+                </Link>
+              }
               title={post.Retweet.User.nickname}
               description={<PostCardContent postData={post.Retweet.content} />}
             />
           </Card>
         ) : (
-          <Card.Meta
-            avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
-            title={post.User.nickname}
-            description={<PostCardContent postData={post.content} />}
-          />
+          <>
+            <DateSpan>{moment(post.createdAt).format('YYYY.MM.DD.')}</DateSpan>
+            <Card.Meta
+              avatar={
+                <Link href={`/user/${post.User.id}`}>
+                  <a>
+                    <Avatar>{post.User.nickname[0]}</Avatar>
+                  </a>
+                </Link>
+              }
+              title={post.User.nickname}
+              description={<PostCardContent postData={post.content} />}
+            />
+          </>
         )}
       </Card>
       {commentFormOpened && (
@@ -144,7 +169,13 @@ const PostCard = ({ post }) => {
               <li>
                 <Comment
                   author={item.User.nickname}
-                  avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
+                  avatar={
+                    <Link href={`/user/${item.User.id}`}>
+                      <a>
+                        <Avatar>{item.User.nickname[0]}</Avatar>
+                      </a>
+                    </Link>
+                  }
                   content={item.content}
                 />
               </li>

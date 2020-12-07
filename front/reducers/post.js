@@ -1,4 +1,4 @@
-import produce from 'immer';
+import produce from '../util/produce';
 
 export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
 export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
