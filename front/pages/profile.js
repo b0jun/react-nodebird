@@ -11,6 +11,7 @@ import NicknameEditForm from '../components/NicknameEditForm';
 import FollowList from '../components/FollowList';
 import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
 import wrapper from '../store/configureStore';
+import { backUrl } from '../config/config';
 
 const fetcher = (url) =>
   axios.get(url, { withCredentials: true }).then((result) => result.data);
@@ -19,11 +20,11 @@ const Profile = () => {
   const [followingsLimit, setFollowingsLimit] = useState(3);
   const [followersLimit, setFollowersLimit] = useState(3);
   const { data: followingsData, error: followingError } = useSWR(
-    `http://localhost:4000/user/followings?limit=${followingsLimit}`,
+    `${backUrl}/user/followings?limit=${followingsLimit}`,
     fetcher
   );
   const { data: followersData, error: followerError } = useSWR(
-    `http://localhost:4000/user/followers?limit=${followersLimit}`,
+    `${backUrl}/user/followers?limit=${followersLimit}`,
     fetcher
   );
   const { me } = useSelector((state) => state.user);
